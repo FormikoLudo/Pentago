@@ -70,14 +70,14 @@ public class Board {
         int deltaX = 0;
         int deltaY = 0;
         switch (boardLocation) {
-            case NORTH_WEST:
+            case NORTH_EAST:
                 deltaX = 3;
                 break;
-            case SOUTH_WEST:
+            case SOUTH_EAST:
                 deltaX = 3;
                 deltaY = 3;
                 break;
-            case SOUTH_EAST:
+            case SOUTH_WEST:
                 deltaY = 3;
                 break;
             default:

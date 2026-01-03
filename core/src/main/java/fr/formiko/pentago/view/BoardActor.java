@@ -8,6 +8,7 @@ import fr.formiko.pentago.Main;
 import fr.formiko.pentago.model.Board;
 import fr.formiko.pentago.model.Point;
 import fr.formiko.pentago.model.State;
+import java.util.HashMap;
 import java.util.Map;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
@@ -17,18 +18,22 @@ public class BoardActor extends Group {
     private static final int lineSize = 4;
     private Board board;
     private Map<Point, CellActor> cells;
+    private Main mainController;
 
-    public BoardActor(Board board, int width, int height) {
+    public BoardActor(Board board, int width, int height, Main mainController) {
         this.board = board;
         setSize(width, height);
+        this.mainController = mainController;
         int widthCell = width / Board.SIZE;
         int heightCell = height / Board.SIZE;
+        cells = new HashMap<>();
         for (int i = 0; i < Board.SIZE; i++) {
             for (int j = 0; j < Board.SIZE; j++) {
-                CellActor cellActor = new CellActor();
-                cellActor.setPosition(i * widthCell, j * heightCell);
+                CellActor cellActor = new CellActor(new Point(i, j), mainController);
+                cellActor.setPosition(i * widthCell, getWidth() - heightCell - (j * heightCell));
                 cellActor.setSize(widthCell, heightCell);
                 addActor(cellActor);
+                cells.put(new Point(i, j), cellActor);
             }
         }
     }

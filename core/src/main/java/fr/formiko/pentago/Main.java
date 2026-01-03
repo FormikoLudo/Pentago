@@ -13,7 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import fr.formiko.pentago.model.Board;
 import fr.formiko.pentago.model.BoardLocation;
+import fr.formiko.pentago.model.Point;
 import fr.formiko.pentago.model.RotatingDirection;
+import fr.formiko.pentago.model.State;
 import fr.formiko.pentago.model.TurnState;
 import fr.formiko.pentago.view.BoardActor;
 import space.earlygrey.shapedrawer.ShapeDrawer;
@@ -26,6 +28,7 @@ public class Main extends ApplicationAdapter {
     private static ShapeDrawer schdraw;
     private Stage stage;
     private Board board;
+    private BoardActor boardActor;
 
     @Override
     public void create() {
@@ -35,8 +38,12 @@ public class Main extends ApplicationAdapter {
 
         this.board = new Board();
         this.stage = new Stage();
-        BoardActor boardActor = new BoardActor(board, 600, 600);
+        boardActor = new BoardActor(board, 600, 600, this);
         stage.addActor(boardActor);
+
+        turnState = TurnState.PLAYER_1_PLACE;
+
+        Gdx.input.setInputProcessor(stage);
     }
 
     public void fullRotateWithLog(Board board, RotatingDirection rotatingDirection, BoardLocation boardLocation) {
@@ -71,5 +78,29 @@ public class Main extends ApplicationAdapter {
             schdraw = new ShapeDrawer(batch, region);
         }
         return schdraw;
+    }
+
+    public void boardClicked(Point point) {
+        if (turnState == TurnState.PLAYER_1_PLACE) {
+            if (board.place(point, State.WHITE)) {
+                boardActor.updateCellActorsFromBoard();
+                turnState = TurnState.PLAYER_1_ROTATE;
+            }
+        } else if (turnState == TurnState.PLAYER_2_PLACE) {
+            if (board.place(point, State.BLACK)) {
+                boardActor.updateCellActorsFromBoard();
+                turnState = TurnState.PLAYER_2_ROTATE;
+            }
+        } else if (turnState == TurnState.PLAYER_1_ROTATE) {
+            board.rotate(RotatingDirection.CLOCK_WHISE, BoardLocation.fromPoint(point));
+            boardActor.updateCellActorsFromBoard();
+            turnState = TurnState.PLAYER_2_PLACE;
+        } else if (turnState == TurnState.PLAYER_2_ROTATE) {
+            board.rotate(RotatingDirection.CLOCK_WHISE, BoardLocation.fromPoint(point));
+            boardActor.updateCellActorsFromBoard();
+            turnState = TurnState.PLAYER_1_PLACE;
+        } else {
+            Gdx.app.log("INFO", "GAME IS ALREADY OVER");
+        }
     }
 }
