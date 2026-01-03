@@ -3,17 +3,29 @@ package fr.formiko.pentago;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 import fr.formiko.pentago.model.Board;
 import fr.formiko.pentago.model.BoardLocation;
 import fr.formiko.pentago.model.RotatingDirection;
+import fr.formiko.pentago.model.TurnState;
+import fr.formiko.pentago.view.BoardActor;
+import space.earlygrey.shapedrawer.ShapeDrawer;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture image;
+    private TurnState turnState;
+    private static ShapeDrawer schdraw;
+    private Stage stage;
+    private Board board;
 
     @Override
     public void create() {
@@ -21,8 +33,10 @@ public class Main extends ApplicationAdapter {
         batch = new SpriteBatch();
         image = new Texture("libgdx.png");
 
-        Board board = new Board();
-        Gdx.app.log("Board have been updated", board.toString());
+        this.board = new Board();
+        this.stage = new Stage();
+        BoardActor boardActor = new BoardActor(board, 600, 600);
+        stage.addActor(boardActor);
     }
 
     public void fullRotateWithLog(Board board, RotatingDirection rotatingDirection, BoardLocation boardLocation) {
@@ -35,14 +49,27 @@ public class Main extends ApplicationAdapter {
     @Override
     public void render() {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        batch.begin();
-        batch.draw(image, 140, 210);
-        batch.end();
+        stage.act();
+        stage.draw();
     }
 
     @Override
     public void dispose() {
         batch.dispose();
         image.dispose();
+    }
+
+
+    public static ShapeDrawer getShapeDrawer(Batch batch) {
+        if (schdraw == null) {
+            Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+            pixmap.setColor(Color.WHITE);
+            pixmap.drawPixel(0, 0);
+            Texture texture = new Texture(pixmap); // remember to dispose of later
+            pixmap.dispose();
+            TextureRegion region = new TextureRegion(texture, 0, 0, 1, 1);
+            schdraw = new ShapeDrawer(batch, region);
+        }
+        return schdraw;
     }
 }

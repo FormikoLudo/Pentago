@@ -1,11 +1,12 @@
 package fr.formiko.pentago.model;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class Board {
-    private static final int SIZE = 6;
+    public static final int SIZE = 6;
     private Map<Point, State> cells;
 
     public Board() {
@@ -13,11 +14,37 @@ public class Board {
 
     }
 
-    public void add(Point point, State state) { cells.put(point, state); }
+    public boolean place(Point point, State state) {
+        if (getState(point) == State.EMPTY) {
+            add(point, state);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void add(Point point, State state) {
+        if (state == State.EMPTY) {
+            remove(point);
+        } else {
+            cells.put(point, state);
+        }
+    }
 
     public void remove(Point point) { cells.remove(point); }
 
     public State getState(Point point) { return cells.getOrDefault(point, State.EMPTY); }
+
+    public List<Point> getAllPoints() {
+        // return a list of points with size SIZE*SIZE
+        List<Point> points = new LinkedList<>();
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                points.add(new Point(i, j));
+            }
+        }
+        return points;
+    }
 
     @Override
     public String toString() {
@@ -26,7 +53,6 @@ public class Board {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 sb.append(getState(new Point(i, j)));
-                // sb.append(" ");
                 if (j % 3 == 2) {
                     sb.append("   ");
                 }
