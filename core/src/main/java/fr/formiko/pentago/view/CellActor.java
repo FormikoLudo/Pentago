@@ -1,9 +1,12 @@
 package fr.formiko.pentago.view;
 
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import fr.formiko.pentago.Main;
@@ -19,10 +22,14 @@ public class CellActor extends Actor {
         this.state = State.EMPTY;
         this.point = point;
         this.mainController = mainController;
-        addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) { mainController.boardClicked(CellActor.this.point); }
-        });
+
+        addListener(new InputListener() {
+    @Override
+    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+    mainController.boardClicked(point, event);
+        return true;
+    }
+});
     }
 
     public State getState() { return state; }
