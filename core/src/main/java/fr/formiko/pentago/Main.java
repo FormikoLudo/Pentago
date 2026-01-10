@@ -3,13 +3,16 @@ package fr.formiko.pentago;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import fr.formiko.pentago.model.Board;
 import fr.formiko.pentago.model.BoardLocation;
@@ -18,6 +21,7 @@ import fr.formiko.pentago.model.RotatingDirection;
 import fr.formiko.pentago.model.State;
 import fr.formiko.pentago.model.TurnState;
 import fr.formiko.pentago.view.BoardActor;
+import fr.formiko.pentago.view.TopView;
 import space.earlygrey.shapedrawer.ShapeDrawer;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -30,6 +34,10 @@ public class Main extends ApplicationAdapter {
     private Board board;
     private BoardActor boardActor;
 
+    public Main() {
+        super();
+        this.turnState = TurnState.PLAYER_1_PLACE;
+    }
     @Override
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_INFO);
@@ -40,6 +48,7 @@ public class Main extends ApplicationAdapter {
         this.stage = new Stage();
         boardActor = new BoardActor(board, 600, 600, this);
         stage.addActor(boardActor);
+        stage.addActor(new TopView(this));
 
         turnState = TurnState.PLAYER_1_PLACE;
 
@@ -80,7 +89,10 @@ public class Main extends ApplicationAdapter {
         return schdraw;
     }
 
-    public void boardClicked(Point point) {
+    public void boardClicked(Point point, InputEvent event) {
+        RotatingDirection direction = event.getButton() == Buttons.LEFT ? RotatingDirection.CLOCK_WHISE
+                : RotatingDirection.COUNTER_CLOCK_WHISE;
+                System.out.println(direction);
         if (turnState == TurnState.PLAYER_1_PLACE) {
             if (board.place(point, State.WHITE)) {
                 boardActor.updateCellActorsFromBoard();
@@ -92,15 +104,19 @@ public class Main extends ApplicationAdapter {
                 turnState = TurnState.PLAYER_2_ROTATE;
             }
         } else if (turnState == TurnState.PLAYER_1_ROTATE) {
-            board.rotate(RotatingDirection.CLOCK_WHISE, BoardLocation.fromPoint(point));
+            board.rotate(direction, BoardLocation.fromPoint(point));
             boardActor.updateCellActorsFromBoard();
             turnState = TurnState.PLAYER_2_PLACE;
         } else if (turnState == TurnState.PLAYER_2_ROTATE) {
-            board.rotate(RotatingDirection.CLOCK_WHISE, BoardLocation.fromPoint(point));
+            board.rotate(direction, BoardLocation.fromPoint(point));
             boardActor.updateCellActorsFromBoard();
             turnState = TurnState.PLAYER_1_PLACE;
         } else {
             Gdx.app.log("INFO", "GAME IS ALREADY OVER");
         }
+    }
+
+    public TurnState getTurnState() {
+        return this.turnState;
     }
 }
